@@ -215,8 +215,8 @@ def query_callback(data_cbs, tabs,flag, event):
             heap = MinHeap(arr, color)
             callback =  partial(heap_sort_callback, data_cbs, source, heap)
 
-        this = pn.state.add_periodic_callback(
-           callback, period=speed,count= 3
+        pn.state.add_periodic_callback(
+           callback, period=speed
         )
         flag = data_cbs.data["flag"][0]
         if flag == True:
@@ -227,10 +227,6 @@ def query_callback(data_cbs, tabs,flag, event):
             data_cbs.data["flag"][0] = False
 
 
-
-bubble_sort_h = 1
-bubble_sort_j = 0
-sorted = 0
 def query_reset(data_cbs,tabs,flag,event):
     global bubble_sort_h, bubble_sort_j,sorted
     data_dict = {
@@ -240,7 +236,6 @@ def query_reset(data_cbs,tabs,flag,event):
         'flag': [True],
         'source': ['-']
     }
-
     options = ['-','bubble_sort', 'selection_sort','insertion_sort','heap_sort']
 
     data_cbs.data = data_dict
