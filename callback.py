@@ -207,6 +207,7 @@ def query_callback(data_cbs, tabs,flag, event):
                 f,
             )
         )
+        print(len(set(color)),'why is this not working')
         if data_cbs.data["sorting_alg"][0] == "bubble_sort":
             callback =  partial(bubble_sort_callback, data_cbs, source)
         elif data_cbs.data["sorting_alg"][0] == "insertion_sort":
@@ -242,7 +243,7 @@ def query_callback(data_cbs, tabs,flag, event):
 
 
 def query_reset(data_cbs,tabs,flag,event):
-    global bubble_sort_h, bubble_sort_j,sorted
+    global bubble_sort_h, bubble_sort_j,sorted,removed
     data_dict = {
         "sorting_alg": ['-'],
         "speed": [100],
