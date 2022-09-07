@@ -35,7 +35,7 @@ def bubble_sort(arr):
 
 def bubble_sort_callback(data_cbs, source):
     global bubble_sort_h, bubble_sort_j, sorted
-
+    print(bubble_sort_j,'bublesortj')
     arr = source.data["arr"]
     size = data_cbs.data["size"][0]
     source.data["arr"] = bubble_sort(arr)
@@ -185,9 +185,10 @@ def heap_sort_callback(data_cbs, source,heap):
         source.data['color'] = color
 
 def query_callback(data_cbs, tabs,flag, event):
-    print('hey)')
+    print('does not work')
+    print( data_cbs.data["sorting_alg"][0])
     if data_cbs.data["sorting_alg"][0] != "-":
-        print('works')
+        print('hey')
         speed = data_cbs.data["speed"][0]
         size = data_cbs.data["size"][0]
         print(size,'This is size of the data')
@@ -195,6 +196,7 @@ def query_callback(data_cbs, tabs,flag, event):
         random.shuffle(arr)
         index = [i for i in range(size)]
         color = ["red" for _ in range(size)]
+        print(len(color),len(arr),len(index))
         source = ColumnDataSource(dict(index=index, arr=arr, color=color))
         data_cbs.data["source"][0] = source
         ### Visualisation basics
@@ -215,16 +217,28 @@ def query_callback(data_cbs, tabs,flag, event):
             heap = MinHeap(arr, color)
             callback =  partial(heap_sort_callback, data_cbs, source, heap)
 
-        pn.state.add_periodic_callback(
-           callback, period=speed
+        this = pn.state.add_periodic_callback(
+            callback=callback, period=speed, start=False)
+
+        def this_is(event):
+            if event.new is True:
+                this.start()
+                periodic_toggle.name = "STOP Periodic Generation"
+            else:
+                this.stop()
+                periodic_toggle.name = "START Periodic Generation"
+
+        reset_button = Button(label="Press Button for a new list", button_type="danger")
+        reset_button.on_click(partial(query_reset, data_cbs, tabs, flag))
+        periodic_toggle = pn.widgets.Toggle(name='START Periodic Generation',
+                                            value=False, button_type='primary')
+        periodic_toggle.param.watch(this_is, 'value')
+        tabs[0][0].append(
+            pn.Column(
+                periodic_toggle,
+                reset_button
+            )
         )
-        flag = data_cbs.data["flag"][0]
-        if flag == True:
-            # print(dir(pn.state))
-            # pn.state.add_periodic_callback(
-            #     callback,  count=, period=speed
-            # )
-            data_cbs.data["flag"][0] = False
 
 
 def query_reset(data_cbs,tabs,flag,event):
@@ -233,26 +247,39 @@ def query_reset(data_cbs,tabs,flag,event):
         "sorting_alg": ['-'],
         "speed": [100],
         "size": [100],
-        'flag': [True],
+        'flag': [False],
         'source': ['-']
     }
     options = ['-','bubble_sort', 'selection_sort','insertion_sort','heap_sort']
 
     data_cbs.data = data_dict
     tabs[0].pop(-1)
-    print('hey')
+    tabs[0][0].pop(-1)
 
     select_sorting = Select(name="Select sorting algorithm", options=options)
     select_sorting.on_change('value', partial(select_sorting_callback, data_cbs))
     speed = data_cbs.data["speed"][0]
-    print(speed)
     size = data_cbs.data["size"][0]
     arr = [i + 1 for i in range(size)]
     random.shuffle(arr)
     index = [i for i in range(size)]
     color = ["red" for _ in range(size)]
-    print('why',data_cbs.data)
     source = ColumnDataSource(dict(index=index, arr=arr, color=color))
     data_cbs.data["source"][0] = source
-    tabs[0][0][1] = select_sorting
-    data_cbs.data["flag"][0] = True
+
+    ### Reinitialise helper variables for sorting
+
+    bubble_sort_h = 1
+    bubble_sort_j = 0
+    sorted = 0
+    selection_sort_i = 0
+    selection_sort_min_pos = 0
+    selection_sort_curr_pos = 0
+    selection_sort_minimum = 20
+    selection_presorted = 0
+    selection_bool = False
+    removed = []
+    insertion_sort_i = 1
+    insertion_sort_j = insertion_sort_i
+    insertion_flag = False
+    print(bubble_sort_h,bubble_sort_j,sorted)

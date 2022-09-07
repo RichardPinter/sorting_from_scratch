@@ -39,8 +39,7 @@ new_button.on_click(partial(query_callback,data_cbs,tabs,flag))
 select_sorting = Select(name="Select sorting algorithm", options = sorting_list)
 select_sorting.on_change('value', partial(select_sorting_callback,data_cbs))
 
-reset_button = Button(label="Press Button for a new list",button_type="danger")
-reset_button.on_click(partial(query_reset,data_cbs,tabs,flag))
+
 
 ### Sorting
 
@@ -72,7 +71,7 @@ speed_sider.on_change('value', update_speed)
 ### Serving
 
 layout = pn.Row(
-    pn.Column(new_button,select_sorting,size_slider,speed_sider,reset_button),
+    pn.Column(new_button,select_sorting,size_slider,speed_sider),
 )
 
 
