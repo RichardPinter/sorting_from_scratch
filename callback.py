@@ -12,6 +12,44 @@ from minheap import MinHeap
 def select_sorting_callback(data_cbs, attr, old, new):
     data_cbs.data["sorting_alg"] = [new]
 
+
+def delete_slider(tabs):
+    tabs[0].pop(-1)
+    tabs[0][0].pop(-1)
+    tabs[0][0].pop(-1)
+    tabs[0][0].pop(-1)
+    tabs[0][0].pop(-1)
+def reset_sliders(data_cbs,tabs):
+    delete_slider(tabs)
+    sorting_list = ['-', 'bubble_sort', 'selection_sort', 'insertion_sort', 'heap_sort']
+    def update_size(attrname, old, new):
+        y = [new]
+        data_cbs.data['size'] = y
+
+    size_slider = Slider(title="Sample size",
+                         value=data_cbs.data['size'][0],
+                         start=1, end=200, step=1)
+
+    size_slider.on_change('value', update_size)
+
+    def update_speed(attrname, old, new):
+        y = [new]
+        data_cbs.data['speed'] = y
+
+    speed_sider = Slider(title="Speed (miliseconds)",
+                         value=data_cbs.data['size'][0],
+                         start=1, end=3000, step=10)
+
+    speed_sider.on_change('value', update_speed)
+
+    select_sorting = Select(name="Select sorting algorithm", options=sorting_list)
+    select_sorting.on_change('value', partial(select_sorting_callback, data_cbs))
+
+    tabs[0][0].append(select_sorting)
+    tabs[0][0].append(size_slider)
+    tabs[0][0].append(speed_sider)
+
+
 ##### Helper functions for the main function #####
 ###  Bubble Sort
 
@@ -230,7 +268,7 @@ def query_callback(data_cbs, tabs,flag, event):
                 periodic_toggle.name = "START Periodic Generation"
 
         reset_button = Button(label="Press Button for a new list", button_type="danger")
-        reset_button.on_click(partial(query_reset, data_cbs, tabs, flag))
+        reset_button.on_click(partial(query_reset, data_cbs, tabs, this))
         periodic_toggle = pn.widgets.Toggle(name='START Periodic Generation',
                                             value=False, button_type='primary')
         periodic_toggle.param.watch(this_is, 'value')
@@ -242,7 +280,7 @@ def query_callback(data_cbs, tabs,flag, event):
         )
 
 
-def query_reset(data_cbs,tabs,flag,event):
+def query_reset(data_cbs,tabs,this,event):
     global bubble_sort_h, bubble_sort_j,sorted,removed
     data_dict = {
         "sorting_alg": ['-'],
@@ -254,8 +292,9 @@ def query_reset(data_cbs,tabs,flag,event):
     options = ['-','bubble_sort', 'selection_sort','insertion_sort','heap_sort']
 
     data_cbs.data = data_dict
-    tabs[0].pop(-1)
-    tabs[0][0].pop(-1)
+
+
+    reset_sliders(data_cbs,tabs)
 
     select_sorting = Select(name="Select sorting algorithm", options=options)
     select_sorting.on_change('value', partial(select_sorting_callback, data_cbs))
@@ -284,3 +323,4 @@ def query_reset(data_cbs,tabs,flag,event):
     insertion_sort_j = insertion_sort_i
     insertion_flag = False
     print(bubble_sort_h,bubble_sort_j,sorted)
+    this.stop()
