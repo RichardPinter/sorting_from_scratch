@@ -34,7 +34,7 @@ tabs = pn.Tabs(dynamic=True)
 ### Button
 
 new_button = Button(label="Press Button for a new sorting algorithm",button_type="success")
-new_button.on_click(partial(query_callback,data_cbs,tabs,flag))
+new_button.on_click(partial(query_callback,data_cbs,tabs))
 
 select_sorting = Select(name="Select sorting algorithm", options = sorting_list)
 select_sorting.on_change('value', partial(select_sorting_callback,data_cbs))

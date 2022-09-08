@@ -7,7 +7,6 @@ from bokeh.models import Button, ColumnDataSource, Select, MultiSelect, Slider, 
 from minheap import MinHeap
 
 
-
 ### Callback for  selection the sorting algorithm ###
 def select_sorting_callback(data_cbs, attr, old, new):
     data_cbs.data["sorting_alg"] = [new]
@@ -19,31 +18,40 @@ def delete_slider(tabs):
     tabs[0][0].pop(-1)
     tabs[0][0].pop(-1)
     tabs[0][0].pop(-1)
-def reset_sliders(data_cbs,tabs):
+    tabs[0][0].pop(-1)
+
+
+
+def reset_sliders(data_cbs, tabs):
     delete_slider(tabs)
-    sorting_list = ['-', 'bubble_sort', 'selection_sort', 'insertion_sort', 'heap_sort']
+    sorting_list = ["-", "bubble_sort", "selection_sort", "insertion_sort", "heap_sort"]
+
     def update_size(attrname, old, new):
         y = [new]
-        data_cbs.data['size'] = y
+        data_cbs.data["size"] = y
 
-    size_slider = Slider(title="Sample size",
-                         value=data_cbs.data['size'][0],
-                         start=1, end=200, step=1)
+    size_slider = Slider(
+        title="Sample size", value=data_cbs.data["size"][0], start=1, end=200, step=1
+    )
 
-    size_slider.on_change('value', update_size)
+    size_slider.on_change("value", update_size)
 
     def update_speed(attrname, old, new):
         y = [new]
-        data_cbs.data['speed'] = y
+        data_cbs.data["speed"] = y
 
-    speed_sider = Slider(title="Speed (miliseconds)",
-                         value=data_cbs.data['size'][0],
-                         start=1, end=3000, step=10)
+    speed_sider = Slider(
+        title="Speed (miliseconds)",
+        value=data_cbs.data["size"][0],
+        start=1,
+        end=3000,
+        step=10,
+    )
 
-    speed_sider.on_change('value', update_speed)
+    speed_sider.on_change("value", update_speed)
 
     select_sorting = Select(name="Select sorting algorithm", options=sorting_list)
-    select_sorting.on_change('value', partial(select_sorting_callback, data_cbs))
+    select_sorting.on_change("value", partial(select_sorting_callback, data_cbs))
 
     tabs[0][0].append(select_sorting)
     tabs[0][0].append(size_slider)
@@ -73,7 +81,7 @@ def bubble_sort(arr):
 
 def bubble_sort_callback(data_cbs, source):
     global bubble_sort_h, bubble_sort_j, sorted
-    print(bubble_sort_j,'bublesortj')
+    print(bubble_sort_j, "bublesortj")
     arr = source.data["arr"]
     size = data_cbs.data["size"][0]
     source.data["arr"] = bubble_sort(arr)
@@ -157,7 +165,7 @@ def selection_sort(arr):
 
     if selection_sort_i < len(arr):
         if selection_sort_curr_pos < len(arr):
-            print(selection_sort_curr_pos,selection_sort_minimum)
+            print(selection_sort_curr_pos, selection_sort_minimum)
             if arr[selection_sort_curr_pos] < selection_sort_minimum:
                 selection_sort_minimum = arr[selection_sort_curr_pos]
                 selection_sort_min_pos = selection_sort_curr_pos
@@ -172,8 +180,7 @@ def selection_sort(arr):
 
 def selection_sort_callback(data_cbs, source):
     ## Selection sort
-    global selection_sort_i, selection_sort_min_pos, selection_sort_curr_pos, selection_sort_minimum, selection_presorted, \
-        selection_bool
+    global selection_sort_i, selection_sort_min_pos, selection_sort_curr_pos, selection_sort_minimum, selection_presorted, selection_bool
     arr = source.data["arr"]
     size = data_cbs.data["size"][0]
     if selection_bool == False:
@@ -206,9 +213,12 @@ def selection_sort_callback(data_cbs, source):
                     pass
 
 
+flag = False
 ### Main heap sort algorithm
 removed = []
-def heap_sort_callback(data_cbs, source,heap):
+
+
+def heap_sort_callback(data_cbs, source, heap):
     global removed
     size = data_cbs.data["size"][0]
     if heap.heap:
@@ -216,48 +226,69 @@ def heap_sort_callback(data_cbs, source,heap):
         removed.append(min)
         llist = heap.heap.copy()
         llist.extend(removed)
-        source.data['arr'] = llist
-        color = ['red'] * size
+        source.data["arr"] = llist
+        color = ["red"] * size
         for i in range(len(removed)):
-            color[len(color)-1-i]='green'
-        source.data['color'] = color
+            color[len(color) - 1 - i] = "green"
+        source.data["color"] = color
 
-def query_callback(data_cbs, tabs,flag, event):
-    print('does not work')
-    print( data_cbs.data["sorting_alg"][0])
-    if data_cbs.data["sorting_alg"][0] != "-":
-        print('hey')
+
+def query_callback(data_cbs, tabs, event):
+    print("does not work")
+    print(data_cbs.data["sorting_alg"][0])
+    global flag
+    if data_cbs.data["sorting_alg"][0] != "-" and flag == False:
+        tabs[0][0].pop(-1)
+        tabs[0][0].pop(-1)
+        tabs[0][0].append(
+            pn.pane.Markdown(
+                f"Sorting Algorithm : {data_cbs.data['sorting_alg'][0]}, "
+            )
+        )
+        tabs[0][0].append(
+            pn.pane.Markdown(
+                f"Size : {data_cbs.data['size'][0]}"
+            )
+        )
+        tabs[0][0].append(
+            pn.pane.Markdown(
+                f" Speed : {data_cbs.data['speed'][0]}"
+            )
+        )
+        flag = True
+        print("hey")
         speed = data_cbs.data["speed"][0]
         size = data_cbs.data["size"][0]
-        print(size,'This is size of the data')
+        print(size, "This is size of the data")
         arr = [i + 1 for i in range(size)]
         random.shuffle(arr)
         index = [i for i in range(size)]
         color = ["red" for _ in range(size)]
-        print(len(color),len(arr),len(index))
+        print(len(color), len(arr), len(index))
         source = ColumnDataSource(dict(index=index, arr=arr, color=color))
         data_cbs.data["source"][0] = source
         ### Visualisation basics
-        f = figure(height = 800, width = 1600)
+        f = figure(height=800, width=1600)
         f.vbar(x="index", top="arr", fill_color="color", source=source)
         tabs[0].append(
             pn.Column(
                 f,
             )
         )
-        print(len(set(color)),'why is this not working')
+        print(len(set(color)), "why is this not working")
         if data_cbs.data["sorting_alg"][0] == "bubble_sort":
-            callback =  partial(bubble_sort_callback, data_cbs, source)
+            callback = partial(bubble_sort_callback, data_cbs, source)
         elif data_cbs.data["sorting_alg"][0] == "insertion_sort":
             callback = partial(insertion_sort_callback, data_cbs, source)
         elif data_cbs.data["sorting_alg"][0] == "selection_sort":
-            callback =  partial(selection_sort_callback, data_cbs, source)
+            callback = partial(selection_sort_callback, data_cbs, source)
         elif data_cbs.data["sorting_alg"][0] == "heap_sort":
             heap = MinHeap(arr, color)
-            callback =  partial(heap_sort_callback, data_cbs, source, heap)
+            callback = partial(heap_sort_callback, data_cbs, source, heap)
 
         this = pn.state.add_periodic_callback(
-            callback=callback, period=speed, start=False)
+            callback=callback, period=speed, start=False
+        )
 
         def this_is(event):
             if event.new is True:
@@ -269,35 +300,31 @@ def query_callback(data_cbs, tabs,flag, event):
 
         reset_button = Button(label="Press Button for a new list", button_type="danger")
         reset_button.on_click(partial(query_reset, data_cbs, tabs, this))
-        periodic_toggle = pn.widgets.Toggle(name='START Periodic Generation',
-                                            value=False, button_type='primary')
-        periodic_toggle.param.watch(this_is, 'value')
-        tabs[0][0].append(
-            pn.Column(
-                periodic_toggle,
-                reset_button
-            )
+        periodic_toggle = pn.widgets.Toggle(
+            name="START Periodic Generation", value=False, button_type="primary"
         )
+        periodic_toggle.param.watch(this_is, "value")
+        tabs[0][0].append(pn.Column(periodic_toggle, reset_button))
 
 
-def query_reset(data_cbs,tabs,this,event):
-    global bubble_sort_h, bubble_sort_j,sorted,removed
+def query_reset(data_cbs, tabs, this, event):
+    global bubble_sort_h, bubble_sort_j, sorted, removed, flag
+    flag = False
     data_dict = {
-        "sorting_alg": ['-'],
+        "sorting_alg": ["-"],
         "speed": [100],
         "size": [100],
-        'flag': [False],
-        'source': ['-']
+        "flag": [False],
+        "source": ["-"],
     }
-    options = ['-','bubble_sort', 'selection_sort','insertion_sort','heap_sort']
+    options = ["-", "bubble_sort", "selection_sort", "insertion_sort", "heap_sort"]
 
     data_cbs.data = data_dict
 
-
-    reset_sliders(data_cbs,tabs)
+    reset_sliders(data_cbs, tabs)
 
     select_sorting = Select(name="Select sorting algorithm", options=options)
-    select_sorting.on_change('value', partial(select_sorting_callback, data_cbs))
+    select_sorting.on_change("value", partial(select_sorting_callback, data_cbs))
     speed = data_cbs.data["speed"][0]
     size = data_cbs.data["size"][0]
     arr = [i + 1 for i in range(size)]
@@ -322,5 +349,5 @@ def query_reset(data_cbs,tabs,this,event):
     insertion_sort_i = 1
     insertion_sort_j = insertion_sort_i
     insertion_flag = False
-    print(bubble_sort_h,bubble_sort_j,sorted)
+    print(bubble_sort_h, bubble_sort_j, sorted)
     this.stop()
